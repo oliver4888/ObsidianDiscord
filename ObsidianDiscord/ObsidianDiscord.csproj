@@ -5,11 +5,11 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>C:\Develop\Obsidian\Obsidian\bin\Debug\netcoreapp3.1\Server-0\plugins\</OutputPath>
+    <OutputPath>$(SolutionDir)\Obsidian\Server-0\plugins\</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>C:\Develop\Obsidian\Obsidian\bin\Debug\netcoreapp3.1\Server-0\plugins\</OutputPath>
+    <OutputPath>$(SolutionDir)\Obsidian\Server-0\plugins\</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>

@@ -2,8 +2,8 @@
   "profiles": {
     "ObsidianDiscord": {
       "commandName": "Executable",
-      "executablePath": "C:\\Develop\\Obsidian\\Obsidian\\bin\\Debug\\netcoreapp3.1\\Obsidian.exe",
-      "workingDirectory": "C:\\Develop\\Obsidian\\Obsidian\\bin\\Debug\\netcoreapp3.1\\"
+      "executablePath": "$(SolutionDir)\\Obsidian\\Obsidian.exe",
+      "workingDirectory": "$(SolutionDir)\\Obsidian\\"
     }
   }
 }
