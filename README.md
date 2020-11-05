@@ -1,4 +1,6 @@
 # ObsidianDiscord
+[![Build status](https://ci.appveyor.com/api/projects/status/de0ldta7wu380kk3/branch/master?svg=true)](https://ci.appveyor.com/project/oliver4888/obsidiandiscord/branch/master)
+
 A [Discord](https://discord.com) chat bridge for Minecraft [Obsidian](https://github.com/Naamloos/Obsidian) servers.
 
 ## Roadmap
