@@ -11,7 +11,7 @@ using Obsidian.API.Plugins.Services;
 namespace ObsidianDiscord
 {
     [Plugin(Name = "ObsidianDiscord", Version = "0.0.1",
-            Authors = "Oliver4888", Description = "",
+            Authors = "Oliver4888", Description = "A Discord chat bridge for Minecraft Obsidian servers.",
             ProjectUrl = "https://github.com/oliver4888/ObsidianDiscord")]
     public class DiscordPlugin : PluginBase
     {
