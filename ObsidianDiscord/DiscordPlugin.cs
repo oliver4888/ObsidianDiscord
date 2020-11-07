@@ -26,6 +26,8 @@ namespace ObsidianDiscord
         [Inject]
         public IFileWriter IFileWriter { get; set; }
 
+        readonly ConfigLoader _configLoader = new ConfigLoader();
+
         DiscordClient _client;
         IServer _server;
         Config _config;
@@ -59,7 +61,7 @@ namespace ObsidianDiscord
         {
             _server = server;
 
-            _config = ConfigLoader.LoadConfig();
+            _config = _configLoader.LoadConfig();
 
             if (!_config.Enabled)
                 return;
