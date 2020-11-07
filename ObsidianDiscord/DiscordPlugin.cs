@@ -15,7 +15,7 @@ namespace ObsidianDiscord
             ProjectUrl = "https://github.com/oliver4888/ObsidianDiscord")]
     public class DiscordPlugin : PluginBase
     {
-        public static DiscordPlugin Instance { get; private set; }
+        internal static DiscordPlugin Instance { get; private set; }
 
         [Inject]
         public ILogger Logger { get; set; }
@@ -47,7 +47,7 @@ namespace ObsidianDiscord
 
         private async Task Discord_MessageCreated(DiscordClient sender, MessageCreateEventArgs e)
         {
-            if (_server == null || e.Author.IsBot)
+            if (e.Author.IsBot)
                 return;
 
             await _server.BroadcastAsync($"<{e.Author.Username}#{e.Author.Discriminator}> {e.Message.Content}");
@@ -71,7 +71,9 @@ namespace ObsidianDiscord
             });
 
             _client.Ready += Discord_Ready;
-            _client.MessageCreated += Discord_MessageCreated;
+
+            if (_server != null && _config.ChatSync.Enabled)
+                _client.MessageCreated += Discord_MessageCreated;
 
             _ = Task.Run(async () =>
             {
@@ -97,6 +99,12 @@ namespace ObsidianDiscord
                 return;
 
             await _client.Guilds[_config.GuildId].Channels[_config.JoinLeaveMessages.ChannelId].SendMessageAsync($"{e.Player.Username} left the server!");
+        }
+
+        public async Task OnIncomingChatMessage(IncomingChatMessageEventArgs e)
+        {
+            if (_config.ChatSync.Enabled)
+                await _client.Guilds[_config.GuildId].Channels[_config.JoinLeaveMessages.ChannelId].SendMessageAsync($"{e.Player.Username}: {e.Message}");
         }
         #endregion
     }
