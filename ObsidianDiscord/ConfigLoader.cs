@@ -1,26 +1,26 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+
+using Newtonsoft.Json;
 
 namespace ObsidianDiscord
 {
     internal class ConfigLoader : PluginRef
     {
-        const string _configFile = "ObsidianDiscord.json";
-
-        internal Config LoadConfig()
+        internal T LoadConfig<T>(string fileName)
         {
-            if (!IFileReader.FileExists(_configFile))
+            if (!IFileReader.FileExists(fileName))
             {
-                Logger.LogWarning($"Config file §e{_configFile}§r doesn't exist. Creating a new one.");
+                Logger.LogWarning($"Config file §e{fileName}§r doesn't exist. Creating a new one.");
 
-                Config config = new Config();
-                IFileWriter.WriteAllText(_configFile, JsonConvert.SerializeObject(config, Formatting.Indented));
+                T defaultConfig = Activator.CreateInstance<T>();
 
-                return config;
+                IFileWriter.WriteAllText(fileName, JsonConvert.SerializeObject(defaultConfig, Formatting.Indented));
+                return defaultConfig;
             }
 
-            string json = IFileReader.ReadAllText(_configFile);
+            string json = IFileReader.ReadAllText(fileName);
 
-            return JsonConvert.DeserializeObject<Config>(json);
+            return JsonConvert.DeserializeObject<T>(json);
         }
     }
 }
