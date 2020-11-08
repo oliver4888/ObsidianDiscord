@@ -1,6 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Linq;
+using System.Timers;
+using System.Threading.Tasks;
 
 using DSharpPlus;
+using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 
 using Obsidian.API;
@@ -34,6 +38,11 @@ namespace ObsidianDiscord
         DiscordClient _client;
         IServer _server;
         PluginConfig _config;
+        ObsidianConfig _obsidianConfig;
+
+        Timer _statusTimer = new Timer(5000);
+        const string _statusMessageTemplate = "{0}/{1} online. {2} TPS";
+        DiscordActivity _discordStatus = new DiscordActivity();
 
         public DiscordPlugin() : base()
         {
@@ -41,9 +50,27 @@ namespace ObsidianDiscord
                 return;
 
             Instance = this;
+
+            _statusTimer.Elapsed += async (sender, e) => await UpdateStatus();
         }
 
-        #region Discord Events
+        #region Discord
+        private void SetStatusMessage() => _discordStatus.Name = string.Format(_statusMessageTemplate, _server.Players.Count(), _obsidianConfig.MaxPlayers, _server.TPS);
+
+        private async Task UpdateStatus()
+        {
+            SetStatusMessage();
+
+            try
+            {
+                await _client.UpdateStatusAsync(_discordStatus);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"UpdateStatus: {ex.Message}");
+            }
+        }
+
         private async Task Discord_Ready(DiscordClient sender, ReadyEventArgs e)
         {
             Logger.LogDebug($"{_client.CurrentUser.Username} ready in {_client.Guilds.Count} guild(s)!");
@@ -65,9 +92,13 @@ namespace ObsidianDiscord
             _server = server;
 
             _config = await _configLoader.LoadConfig<PluginConfig>();
+            _obsidianConfig = await _configLoader.LoadConfig<ObsidianConfig>(false);
 
             if (!_config.Enabled)
                 return;
+
+            SetStatusMessage();
+            _statusTimer.Start();
 
             _client = new DiscordClient(new DiscordConfiguration
             {
@@ -82,7 +113,7 @@ namespace ObsidianDiscord
 
             _ = Task.Run(async () =>
             {
-                await _client.ConnectAsync();
+                await _client.ConnectAsync(_discordStatus);
             });
 
             Logger.Log($"{Info.Name} v{Info.Version} loaded!");
