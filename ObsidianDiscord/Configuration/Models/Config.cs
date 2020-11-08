@@ -1,4 +1,4 @@
-﻿namespace ObsidianDiscord
+﻿namespace ObsidianDiscord.Configuration.Models
 {
     public class Config
     {

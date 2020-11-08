@@ -8,6 +8,9 @@ using Obsidian.API.Events;
 using Obsidian.API.Plugins;
 using Obsidian.API.Plugins.Services;
 
+using ObsidianDiscord.Configuration;
+using ObsidianDiscord.Configuration.Models;
+
 namespace ObsidianDiscord
 {
     [Plugin(Name = "ObsidianDiscord", Version = "0.0.1",
@@ -62,7 +65,7 @@ namespace ObsidianDiscord
         {
             _server = server;
 
-            _config = _configLoader.LoadConfig<Config>(_configFileName);
+            _config = await _configLoader.LoadConfig<Config>(_configFileName);
 
             if (!_config.Enabled)
                 return;
