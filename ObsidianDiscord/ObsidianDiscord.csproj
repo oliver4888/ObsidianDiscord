@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -13,9 +14,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DSharpPlus" Version="4.0.0-nightly-00747" />
+    <PackageReference Include="DSharpPlus" Version="4.0.0-nightly-00748" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="Obsidian.API" Version="1.0.180" ExcludeAssets="runtime">
+    <PackageReference Include="Obsidian.API" Version="1.0.208" ExcludeAssets="runtime">
       <Private>false</Private>
     </PackageReference>
   </ItemGroup>

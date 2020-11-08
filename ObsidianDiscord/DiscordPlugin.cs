@@ -38,7 +38,6 @@ namespace ObsidianDiscord
         DiscordClient _client;
         IServer _server;
         PluginConfig _config;
-        ObsidianConfig _obsidianConfig;
 
         Timer _statusTimer;
         DiscordActivity _discordStatus = new DiscordActivity();
@@ -52,7 +51,7 @@ namespace ObsidianDiscord
         }
 
         #region Discord
-        private void SetStatusMessage() => _discordStatus.Name = string.Format(_config.BotStatus.Template, _server.Players.Count(), _obsidianConfig.MaxPlayers, _server.TPS);
+        private void SetStatusMessage() => _discordStatus.Name = string.Format(_config.BotStatus.Template, _server.Players.Count(), _server.Configuration.MaxPlayers, _server.TPS);
 
         private async Task UpdateStatus()
         {
@@ -89,7 +88,6 @@ namespace ObsidianDiscord
             _server = server;
 
             _config = await _configLoader.LoadConfig<PluginConfig>();
-            _obsidianConfig = await _configLoader.LoadConfig<ObsidianConfig>(false);
 
             if (!_config.Enabled)
                 return;
@@ -126,7 +124,12 @@ namespace ObsidianDiscord
             if (!(_config.Enabled && _config.JoinLeaveMessages.Enabled))
                 return;
 
-            await _client.Guilds[_config.GuildId].Channels[_config.JoinLeaveMessages.ChannelId].SendMessageAsync($"{e.Player.Username} joined the server!");
+            _ = Task.Run(async () =>
+            {
+                if (_config.ChatSync.Enabled)
+                    await _client.Guilds[_config.GuildId].Channels[_config.JoinLeaveMessages.ChannelId].SendMessageAsync($"{e.Player.Username} joined the server!");
+            });
+            await Task.CompletedTask;
         }
 
         public async Task OnPlayerLeave(PlayerLeaveEventArgs e)
@@ -134,13 +137,22 @@ namespace ObsidianDiscord
             if (!(_config.Enabled && _config.JoinLeaveMessages.Enabled))
                 return;
 
-            await _client.Guilds[_config.GuildId].Channels[_config.JoinLeaveMessages.ChannelId].SendMessageAsync($"{e.Player.Username} left the server!");
+            _ = Task.Run(async () =>
+            {
+                if (_config.ChatSync.Enabled)
+                    await _client.Guilds[_config.GuildId].Channels[_config.JoinLeaveMessages.ChannelId].SendMessageAsync($"{e.Player.Username} left the server!");
+            });
+            await Task.CompletedTask;
         }
 
         public async Task OnIncomingChatMessage(IncomingChatMessageEventArgs e)
         {
-            if (_config.ChatSync.Enabled)
-                await _client.Guilds[_config.GuildId].Channels[_config.JoinLeaveMessages.ChannelId].SendMessageAsync($"{e.Player.Username}: {e.Message}");
+            _ = Task.Run(async () =>
+            {
+                if (_config.ChatSync.Enabled)
+                    await _client.Guilds[_config.GuildId].Channels[_config.JoinLeaveMessages.ChannelId].SendMessageAsync($"{e.Player.Username}: {e.Message}");
+            });
+            await Task.CompletedTask;
         }
         #endregion
     }
