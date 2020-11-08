@@ -1,12 +1,19 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Linq;
+using System.Timers;
+using System.Threading.Tasks;
 
 using DSharpPlus;
+using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 
 using Obsidian.API;
 using Obsidian.API.Events;
 using Obsidian.API.Plugins;
 using Obsidian.API.Plugins.Services;
+
+using ObsidianDiscord.Configuration;
+using ObsidianDiscord.Configuration.Models;
 
 namespace ObsidianDiscord
 {
@@ -15,7 +22,7 @@ namespace ObsidianDiscord
             ProjectUrl = "https://github.com/oliver4888/ObsidianDiscord")]
     public class DiscordPlugin : PluginBase
     {
-        public static DiscordPlugin Instance { get; private set; }
+        internal static DiscordPlugin Instance { get; private set; }
 
         [Inject]
         public ILogger Logger { get; set; }
@@ -26,9 +33,15 @@ namespace ObsidianDiscord
         [Inject]
         public IFileWriter IFileWriter { get; set; }
 
+        readonly ConfigLoader _configLoader = new ConfigLoader();
+
         DiscordClient _client;
         IServer _server;
-        Config _config;
+        PluginConfig _config;
+        ObsidianConfig _obsidianConfig;
+
+        Timer _statusTimer;
+        DiscordActivity _discordStatus = new DiscordActivity();
 
         public DiscordPlugin() : base()
         {
@@ -38,7 +51,23 @@ namespace ObsidianDiscord
             Instance = this;
         }
 
-        #region Discord Events
+        #region Discord
+        private void SetStatusMessage() => _discordStatus.Name = string.Format(_config.BotStatus.Template, _server.Players.Count(), _obsidianConfig.MaxPlayers, _server.TPS);
+
+        private async Task UpdateStatus()
+        {
+            SetStatusMessage();
+
+            try
+            {
+                await _client.UpdateStatusAsync(_discordStatus);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"UpdateStatus: {ex.Message}");
+            }
+        }
+
         private async Task Discord_Ready(DiscordClient sender, ReadyEventArgs e)
         {
             Logger.LogDebug($"{_client.CurrentUser.Username} ready in {_client.Guilds.Count} guild(s)!");
@@ -47,7 +76,7 @@ namespace ObsidianDiscord
 
         private async Task Discord_MessageCreated(DiscordClient sender, MessageCreateEventArgs e)
         {
-            if (_server == null || e.Author.IsBot)
+            if (e.Author.IsBot)
                 return;
 
             await _server.BroadcastAsync($"<{e.Author.Username}#{e.Author.Discriminator}> {e.Message.Content}");
@@ -59,10 +88,17 @@ namespace ObsidianDiscord
         {
             _server = server;
 
-            _config = ConfigLoader.LoadConfig();
+            _config = await _configLoader.LoadConfig<PluginConfig>();
+            _obsidianConfig = await _configLoader.LoadConfig<ObsidianConfig>(false);
 
             if (!_config.Enabled)
                 return;
+
+            SetStatusMessage();
+
+            _statusTimer = new Timer(_config.BotStatus.Interval);
+            _statusTimer.Elapsed += async (sender, e) => await UpdateStatus();
+            _statusTimer.Start();
 
             _client = new DiscordClient(new DiscordConfiguration
             {
@@ -71,11 +107,13 @@ namespace ObsidianDiscord
             });
 
             _client.Ready += Discord_Ready;
-            _client.MessageCreated += Discord_MessageCreated;
+
+            if (_server != null && _config.ChatSync.Enabled)
+                _client.MessageCreated += Discord_MessageCreated;
 
             _ = Task.Run(async () =>
             {
-                await _client.ConnectAsync();
+                await _client.ConnectAsync(_discordStatus);
             });
 
             Logger.Log($"{Info.Name} v{Info.Version} loaded!");
@@ -97,6 +135,12 @@ namespace ObsidianDiscord
                 return;
 
             await _client.Guilds[_config.GuildId].Channels[_config.JoinLeaveMessages.ChannelId].SendMessageAsync($"{e.Player.Username} left the server!");
+        }
+
+        public async Task OnIncomingChatMessage(IncomingChatMessageEventArgs e)
+        {
+            if (_config.ChatSync.Enabled)
+                await _client.Guilds[_config.GuildId].Channels[_config.JoinLeaveMessages.ChannelId].SendMessageAsync($"{e.Player.Username}: {e.Message}");
         }
         #endregion
     }

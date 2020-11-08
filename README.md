@@ -9,8 +9,12 @@ _Items may be added or removed at any time_
   - [ ] Custom message formatting
 - [ ] Chat sync
   - [x] Discord => MC
-  - [ ] MC => Discord
+  - [x] MC => Discord
   - [ ] Message filtering (remove colour codes from Discord messages etc)
 - [ ] Account linking
   - [ ] Allow players to link their Discord accounts to a MC account
   - [ ] Use MC names when sending messages from Discord
+  - [ ] Use Discord webhooks to send MC => Discord messages with the authors Discord pfp and username
+- [x] Bot status
+  - [x] Player count and TPS in the bot's status
+  - [x] Customizable message format
