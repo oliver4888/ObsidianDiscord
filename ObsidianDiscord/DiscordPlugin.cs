@@ -40,8 +40,7 @@ namespace ObsidianDiscord
         PluginConfig _config;
         ObsidianConfig _obsidianConfig;
 
-        Timer _statusTimer = new Timer(5000);
-        const string _statusMessageTemplate = "{0}/{1} online. {2} TPS";
+        Timer _statusTimer;
         DiscordActivity _discordStatus = new DiscordActivity();
 
         public DiscordPlugin() : base()
@@ -50,12 +49,10 @@ namespace ObsidianDiscord
                 return;
 
             Instance = this;
-
-            _statusTimer.Elapsed += async (sender, e) => await UpdateStatus();
         }
 
         #region Discord
-        private void SetStatusMessage() => _discordStatus.Name = string.Format(_statusMessageTemplate, _server.Players.Count(), _obsidianConfig.MaxPlayers, _server.TPS);
+        private void SetStatusMessage() => _discordStatus.Name = string.Format(_config.BotStatus.Template, _server.Players.Count(), _obsidianConfig.MaxPlayers, _server.TPS);
 
         private async Task UpdateStatus()
         {
@@ -98,6 +95,9 @@ namespace ObsidianDiscord
                 return;
 
             SetStatusMessage();
+
+            _statusTimer = new Timer(_config.BotStatus.Interval);
+            _statusTimer.Elapsed += async (sender, e) => await UpdateStatus();
             _statusTimer.Start();
 
             _client = new DiscordClient(new DiscordConfiguration

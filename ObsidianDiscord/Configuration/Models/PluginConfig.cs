@@ -11,6 +11,7 @@ namespace ObsidianDiscord.Configuration.Models
 
         public JoinLeaveMessageConfig JoinLeaveMessages { get; set; } = new JoinLeaveMessageConfig();
         public ChatSyncConfig ChatSync { get; set; } = new ChatSyncConfig();
+        public StatusConfig BotStatus { get; set; } = new StatusConfig();
     }
 
     public class JoinLeaveMessageConfig
@@ -23,5 +24,12 @@ namespace ObsidianDiscord.Configuration.Models
     {
         public bool Enabled { get; set; } = false;
         public ulong ChannelId { get; set; }
+    }
+
+    public class StatusConfig
+    {
+        public bool Enabled { get; set; } = false;
+        public int Interval { get; set; } = 5000;
+        public string Template { get; set; } = "{0}/{1} online. {2} TPS";
     }
 }
