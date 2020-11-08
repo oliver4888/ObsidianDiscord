@@ -1,6 +1,9 @@
-﻿namespace ObsidianDiscord.Configuration.Models
+﻿using ObsidianDiscord.Configuration.Attributes;
+
+namespace ObsidianDiscord.Configuration.Models
 {
-    public class Config
+    [ConfigFileName("ObsidianDiscord.json")]
+    public class PluginConfig
     {
         public bool Enabled { get; set; } = false;
         public string Token { get; set; }
