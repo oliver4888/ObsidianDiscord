@@ -8,7 +8,7 @@ using ObsidianDiscord.Configuration.Attributes;
 
 namespace ObsidianDiscord.Configuration
 {
-    internal class ConfigLoader : PluginRef
+    internal class ConfigManager : PluginRef
     {
         internal async Task<T> LoadConfig<T>(bool createMissing = true)
         {
@@ -30,7 +30,8 @@ namespace ObsidianDiscord.Configuration
 
                 T defaultConfig = Activator.CreateInstance<T>();
 
-                await IFileWriter.WriteAllTextAsync(fileName, JsonConvert.SerializeObject(defaultConfig, Formatting.Indented));
+                await SaveConfig(fileName, defaultConfig);
+
                 return defaultConfig;
             }
 
@@ -38,6 +39,11 @@ namespace ObsidianDiscord.Configuration
 
             return JsonConvert.DeserializeObject<T>(json);
         }
+
+        internal async Task SaveConfig<T>(T config) => await SaveConfig(GetFileName<T>(), config);
+
+        private async Task SaveConfig<T>(string fileName, T config) =>
+            await IFileWriter.WriteAllTextAsync(fileName, JsonConvert.SerializeObject(config, Formatting.Indented));
 
         private string GetFileName<T>() => typeof(T).GetCustomAttribute<ConfigFileNameAttribute>()?.FileName ?? null;
     }

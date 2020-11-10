@@ -24,6 +24,7 @@ namespace ObsidianDiscord.Configuration.Models
     {
         public bool Enabled { get; set; } = false;
         public ulong ChannelId { get; set; }
+        public bool UseWebhooks { get; set; } = true;
     }
 
     public class StatusConfig

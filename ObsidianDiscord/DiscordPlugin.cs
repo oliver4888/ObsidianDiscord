@@ -33,11 +33,13 @@ namespace ObsidianDiscord
         [Inject]
         public IFileWriter IFileWriter { get; set; }
 
-        readonly ConfigLoader _configLoader = new ConfigLoader();
+        readonly ConfigManager _configManager = new ConfigManager();
 
         DiscordClient _client;
         IServer _server;
+
         PluginConfig _config;
+        WebhookConfig _webhook;
 
         Timer _statusTimer;
         DiscordActivity _discordStatus = new DiscordActivity();
@@ -70,6 +72,23 @@ namespace ObsidianDiscord
         private async Task Discord_Ready(DiscordClient sender, ReadyEventArgs e)
         {
             Logger.LogDebug($"{_client.CurrentUser.Username} ready in {_client.Guilds.Count} guild(s)!");
+
+            _ = Task.Run(async () =>
+            {
+                if (_config.ChatSync.UseWebhooks)
+                {
+                    if (_webhook.WebhookId == 0)
+                    {
+                        DiscordChannel channel = await _client.GetChannelAsync(_config.ChatSync.ChannelId);
+                        _webhook.Webhook = await channel.CreateWebhookAsync("ObsidianDiscord_Webhook");
+                        _webhook.WebhookId = _webhook.Webhook.Id;
+                        await _configManager.SaveConfig(_webhook);
+                    }
+                    else
+                        _webhook.Webhook = await _client.GetWebhookAsync(_webhook.WebhookId);
+                }
+            });
+
             await Task.CompletedTask;
         }
 
@@ -87,7 +106,8 @@ namespace ObsidianDiscord
         {
             _server = server;
 
-            _config = await _configLoader.LoadConfig<PluginConfig>();
+            _config = await _configManager.LoadConfig<PluginConfig>();
+            _webhook = await _configManager.LoadConfig<WebhookConfig>();
 
             if (!_config.Enabled)
                 return;
@@ -115,8 +135,6 @@ namespace ObsidianDiscord
             });
 
             Logger.Log($"{Info.Name} v{Info.Version} loaded!");
-
-            await Task.CompletedTask;
         }
 
         public async Task OnPlayerJoin(PlayerJoinEventArgs e)
@@ -150,7 +168,17 @@ namespace ObsidianDiscord
             _ = Task.Run(async () =>
             {
                 if (_config.ChatSync.Enabled)
-                    await _client.Guilds[_config.GuildId].Channels[_config.JoinLeaveMessages.ChannelId].SendMessageAsync($"{e.Player.Username}: {e.Message}");
+                {
+                    if (_config.ChatSync.UseWebhooks)
+                        await _webhook.Webhook.ExecuteAsync(new DiscordWebhookBuilder
+                        {
+                            AvatarUrl = $"https://minotar.net/avatar/{e.Player.Uuid.ToString().Replace("-", "")}",
+                            Username = e.Player.Username,
+                            Content = e.Message
+                        });
+                    else
+                        await _client.Guilds[_config.GuildId].Channels[_config.JoinLeaveMessages.ChannelId].SendMessageAsync($"{e.Player.Username}: {e.Message}");
+                }
             });
             await Task.CompletedTask;
         }
