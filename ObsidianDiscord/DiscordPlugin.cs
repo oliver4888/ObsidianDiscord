@@ -145,7 +145,10 @@ namespace ObsidianDiscord
             _ = Task.Run(async () =>
             {
                 if (_config.ChatSync.Enabled)
-                    await _client.Guilds[_config.GuildId].Channels[_config.JoinLeaveMessages.ChannelId].SendMessageAsync($"{e.Player.Username} joined the server!");
+                {
+                    string message = string.Format(_config.JoinLeaveMessages.JoinMessageTemplate, e.Player.Username);
+                    await (await _client.GetChannelAsync(_config.JoinLeaveMessages.ChannelId)).SendMessageAsync(message);
+                }
             });
             await Task.CompletedTask;
         }
@@ -158,7 +161,10 @@ namespace ObsidianDiscord
             _ = Task.Run(async () =>
             {
                 if (_config.ChatSync.Enabled)
-                    await _client.Guilds[_config.GuildId].Channels[_config.JoinLeaveMessages.ChannelId].SendMessageAsync($"{e.Player.Username} left the server!");
+                {
+                    string message = string.Format(_config.JoinLeaveMessages.LeaveMessageTemplate, e.Player.Username);
+                    await (await _client.GetChannelAsync(_config.JoinLeaveMessages.ChannelId)).SendMessageAsync(message);
+                }
             });
             await Task.CompletedTask;
         }
@@ -177,7 +183,10 @@ namespace ObsidianDiscord
                             Content = e.Message
                         });
                     else
-                        await _client.Guilds[_config.GuildId].Channels[_config.JoinLeaveMessages.ChannelId].SendMessageAsync($"{e.Player.Username}: {e.Message}");
+                    {
+                        string message = string.Format(_config.ChatSync.FallbackMessageTemplate, e.Player.Username, e.Message);
+                        await (await _client.GetChannelAsync(_config.JoinLeaveMessages.ChannelId)).SendMessageAsync(message);
+                    }
                 }
             });
             await Task.CompletedTask;

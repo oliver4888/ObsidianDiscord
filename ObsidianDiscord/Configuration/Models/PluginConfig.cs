@@ -18,6 +18,8 @@ namespace ObsidianDiscord.Configuration.Models
     {
         public bool Enabled { get; set; } = false;
         public ulong ChannelId { get; set; }
+        public string JoinMessageTemplate { get; set; } = "{0} joined the server!";
+        public string LeaveMessageTemplate { get; set; } = "{1} left the server!";
     }
 
     public class ChatSyncConfig
@@ -25,6 +27,7 @@ namespace ObsidianDiscord.Configuration.Models
         public bool Enabled { get; set; } = false;
         public ulong ChannelId { get; set; }
         public bool UseWebhooks { get; set; } = true;
+        public string FallbackMessageTemplate { get; set; } = "{0}: {1}";
     }
 
     public class StatusConfig
