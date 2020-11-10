@@ -7,15 +7,22 @@ A [Discord](https://discord.com) chat bridge for Minecraft [Obsidian](https://gi
 _Items may be added or removed at any time_
 - [x] Player join / leave messages
   - [x] Custom message formatting
-- [ ] Chat sync
-  - [x] Discord => MC
-  - [x] MC => Discord
-  - [ ] Message filtering (remove colour codes from Discord messages etc)
+- [x] Chat sync
+  - [x] Discord => Minecraft
+  - [x] Minecraft => Discord
+  - [ ] Message filtering & manipulation
+    - [ ] Remove Minecraft colour codes from messages
+    - [ ] Granular permissions to allow / disallow @everyone, @here and `<@id>` mentions
+    - [ ] Replace `<@id>` mentions with the users name
 - [ ] Account linking
-  - [ ] Allow players to link their Discord accounts to a MC account
-  - [ ] Use MC names when sending messages from Discord
-  - [ ] Use Discord webhooks to send MC => Discord messages with the authors Discord pfp and username
-    - [x] Fallback to their MC avatar face when the account isn't linked
+  - [ ] Allow players to link their Discord accounts to a Minecraft account
+  - [ ] Use Minecraft names when sending messages from Discord
+  - [ ] Use Discord webhooks to send Minecraft => Discord messages with the authors Discord pfp and username
+    - [x] Fallback to their Minecraft avatar face when the account isn't linked
 - [x] Bot status
   - [x] Player count and TPS in the bot's status
   - [x] Customizable message format
+- [ ] Wiki
+  - [ ] Setup guide
+  - [ ] Configuration options documentation
+  - [ ] Required bot permissions
